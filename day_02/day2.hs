@@ -22,9 +22,9 @@ occurences letter = length . filter (== letter)
 passwdok :: [(Int, Int, [Char], String)]
 passwdok = filter check input
 
-result = length passwdok
+answerQ1 = length passwdok
 
-result2 = length $ filter checkV2 input
+answerQ2 = length $ filter checkV2 input
 
 -- data prepared with command line :
 -- sed -E 's/^([0-9]+)\-([0-9]+) (.)\: (.+)$/(\1, \2, "\3", "\4"),/' < day2_input.txt >> day2.hs
