@@ -12,21 +12,54 @@ import qualified Data.Void
 import           Data.Functor ( ($>))
 
 import           Text.Show.Pretty               ( pPrint )
+import           Data.List
 
 fileName = "example.txt" -- "input.txt"
 
 main :: IO ()
 main = do
   fileContent <- Utf8.readFile fileName
-  let passeportList = P.parse passeportsDefinitions "" fileContent
-  pPrint passeportList
+  let parseResult = P.parse passeportsDefinitions "" fileContent
+  case parseResult of
+    Left e -> do
+      putStrLn "Error :"
+      pPrint e 
+    Right passeportList -> do
+      -- pPrint passeportList
+      let validPasseportNumber = length $ filter passeportIsValid passeportList
+      putStrLn ("nb of valid passeports: " ++ show validPasseportNumber)
 
---
+-- ------------------------------------------------------------------------
+-- validity handlers
+-- byr (Birth Year)
+-- iyr (Issue Year)
+-- eyr (Expiration Year)
+-- hgt (Height)
+-- hcl (Hair Color)
+-- ecl (Eye Color)
+-- pid (Passport ID)
+-- cid (Country ID)
+
+allowedFields :: [String]
+allowedFields =  ["byr", "iyr", "eyr", "hgt", "hcl", "ecl", "pid", "cid"]
+
+requiredFields :: [String]
+requiredFields = delete "cid" allowedFields 
+
+passeportIsValid :: Passeport -> Bool
+passeportIsValid passeport = 
+  let 
+    fields = map fst passeport
+    haveField f = f `elem` fields
+  in
+    all haveField requiredFields
+
+-- ------------------------------------------------------------------------
+-- Parsers
 
 type Passeport = [(String, String)] -- Assoc list
 type Parser = P.Parsec Data.Void.Void T.Text
 
--- Parsers
 passeportsDefinitions :: Parser [Passeport]
 passeportsDefinitions = sepEndBy passeport emptyLine
 
