@@ -6,7 +6,7 @@ import qualified Text.Megaparsec               as P
 import qualified Text.Megaparsec.Char          as C
 import qualified Data.Text.IO.Utf8             as Utf8
 
-import           Control.Monad.Combinators     ( (<|>))
+import           Control.Monad.Combinators     ( (<|>), sepEndBy1, sepEndBy)
 import qualified Data.Text                     as T
 import qualified Data.Void                     
 import           Data.Functor ( ($>))
@@ -28,7 +28,7 @@ type Parser = P.Parsec Data.Void.Void T.Text
 
 -- Parsers
 passeportsDefinitions :: Parser [Passeport]
-passeportsDefinitions = P.sepEndBy1 passeport emptyLine
+passeportsDefinitions = sepEndBy passeport emptyLine
 
 newline ::  Parser ()
 newline = C.char '\n' $> ()
@@ -41,10 +41,10 @@ emptyLine =  do
 -- Whitespaces including newline except blank line
 fieldSeparator :: Parser ()
 fieldSeparator =  C.char ' ' $> () 
-              <|> (newline *> P.notFollowedBy newline)
+              <|> P.try (newline *> P.notFollowedBy newline)
 
 passeport :: Parser Passeport
-passeport = P.sepEndBy1 passeportField fieldSeparator
+passeport = sepEndBy1 passeportField fieldSeparator
 
 passeportField :: Parser (String, String)
 passeportField = do
