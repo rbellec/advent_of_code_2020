@@ -1,1 +1,1 @@
-Some fun !
+Let's have (pure) fun.
